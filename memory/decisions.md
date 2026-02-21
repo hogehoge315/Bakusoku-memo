@@ -48,11 +48,44 @@
 
 ---
 
-## ADR-005: 並行処理 — actor MemoFormatter
+## ADR-005: 並行処理 — actor ThreadFormatter
 
 - **日付**: 2026-02-21
 - **状況**: Foundation Models の呼び出しと SwiftData への書き込みの並行処理設計
-- **決定**: AI 整形処理を `actor MemoFormatter` に隔離する。SwiftData 操作は `@MainActor` で分離する
+- **決定**: AI 整形処理を `actor ThreadFormatter` に隔離する。SwiftData 操作は `@MainActor` で分離する
 - **理由**: Swift 6 strict concurrency を満たすために AI 処理（非 `@MainActor`）と UI/SwiftData 操作（`@MainActor`）を明確に分離する必要がある
 - **代替案**: すべて `@MainActor` で処理（却下: AI 処理がメインスレッドをブロック）
-- **結果**: AI 整形中も UI が応答可能。フォーカスアウト後にユーザーがアプリを閉じても処理が継続する
+- **結果**: AI 整形中も UI が応答可能。送信後にユーザーがアプリを閉じても処理が継続する
+
+---
+
+## ADR-006: データモデル — Thread / ThreadItem / PendingMemo
+
+- **日付**: 2026-02-21
+- **状況**: メモの永続化データモデル設計
+- **決定**: `Thread`（スレッド）・`ThreadItem`（スレッド内アイテム/元メモログ）・`PendingMemo`（保留メモ）の3モデル構成を採用する
+- **理由**: 「メモを投げる → AIがスレッドに統合」というUXに合わせ、Threadが中心エンティティとなる。元メモ履歴とAI指示ログはThreadItemとして蓄積。保留状態のメモはPendingMemoとして分離管理
+- **代替案**: Memo / MemoItem（却下: スレッドが主役という設計に合わない）
+- **結果**: `Thread.markdownContent` が真実のソース。`ThreadItem` が更新ログ。`PendingMemo` がトリアージ待ちキュー
+
+---
+
+## ADR-007: ナビゲーション — 左右スワイプによるページング
+
+- **日付**: 2026-02-21
+- **状況**: 入力画面 ↔ スレッド一覧の遷移方式
+- **決定**: `TabView` + `PageTabViewStyle` による左右スワイプページングを採用する
+- **理由**: 「起動直後に入力画面」「右スワイプで一覧」というUXを最小コードで実現できる。NavigationStackより遷移コストが低く、思考の流れを止めない
+- **代替案**: NavigationStack（却下: push遷移のアニメーションが一覧↔入力の行き来に合わない）
+- **結果**: 入力画面がindex 0、スレッド一覧がindex 1のPageView。スレッド詳細はスレッド一覧からNavigationStackでpush
+
+---
+
+## ADR-008: Markdown表示 — フル再生成方式
+
+- **日付**: 2026-02-21
+- **状況**: スレッドへのメモ追加時のMarkdown更新方式
+- **決定**: 既存Markdown全文 + 新メモ をLLMに渡し、Markdown全文をレスポンスとして受け取るフル再生成方式を採用する
+- **理由**: セクション差分更新はLLMへの指示が複雑になりプロンプトのメンテコストが高い。フル再生成のほうがシンプルで品質が安定する。生成時間はUX的に許容済み
+- **代替案**: セクション差分更新（却下: 実装複雑・プロンプト不安定）
+- **結果**: システムプロンプトに「変更最小化・セクション単位更新を推奨」と指示することで過剰な書き換えを抑制する

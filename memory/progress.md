@@ -39,47 +39,63 @@
 
 ## Phase 2: データモデル
 
-- [ ] `Memo.swift`（`@Model final class`）
-- [ ] `MemoItem.swift`（`@Model final class`）
+- [ ] `Thread.swift`（`@Model final class`）
+  - `id`, `title`, `markdownContent`, `isLocked`, `isProcessing`, `updatedAt`
+- [ ] `ThreadItem.swift`（`@Model final class`）— 元メモ履歴・AI指示ログ
+  - `id`, `threadId`, `rawText`, `itemType`（memo / aiInstruction）, `createdAt`
+- [ ] `PendingMemo.swift`（`@Model final class`）— 保留メモ
+  - `id`, `rawText`, `createdAt`
 - [ ] SwiftData マイグレーションスキーマ設定
 
 ---
 
 ## Phase 3: @Generable 構造体
 
-- [ ] `FormattedMemo.swift`（`@Generable`）
-- [ ] `MemoType.swift`（`@Generable enum`）
-- [ ] `MemoFormatterError.swift`（エラー定義）
+- [ ] `ThreadSuggestion.swift`（`@Generable`）— バブル候補・トリアージ候補
+- [ ] `FormattedThread.swift`（`@Generable`）— Markdown再生成レスポンス
+- [ ] `ThreadFormatterError.swift`（エラー定義）
 
 ---
 
 ## Phase 4: AI 整形機能（Features/）
 
-- [ ] `actor MemoFormatter` 実装
+- [ ] `actor ThreadFormatter` 実装
   - [ ] `SystemLanguageModel.default.availability` チェック
   - [ ] `LanguageModelSession` 使い捨てパターン
-  - [ ] `respond(to:generating:)` で `FormattedMemo` 取得
-  - [ ] `GenerationError` ハンドリング
+  - [ ] バブル候補生成（入力テキスト → 既存スレッド候補3件）
+  - [ ] スレッド統合（既存Markdown全文 + 新メモ → Markdown再生成）
+  - [ ] AI指示処理（既存Markdown全文 + ユーザー指示 → Markdown再生成）
+  - [ ] `GenerationError.exceededContextWindowSize` ハンドリング
 - [ ] アプリ起動時の `prewarm` 実装
 
 ---
 
 ## Phase 5: SwiftUI Views
 
-- [ ] `RootView.swift`（ナビゲーションルート）
-- [ ] `MemoListView.swift` + `MemoRowView.swift`
-- [ ] `MemoInputView.swift`（自動フォーカス・フォーカスアウト確定）
-- [ ] `MemoDetailView.swift`
-  - [ ] `ChecklistView.swift`（shopping / todo 用）
-  - [ ] `NoteView.swift`（note 用）
+- [ ] `RootView.swift`（TabView + PageTabViewStyle で入力↔一覧）
+- [ ] `InputView.swift`（キーボードON・バブル候補・送信・未分類バナー）
+  - [ ] バブル候補コンポーネント（2秒 + 10文字 debounce）
+  - [ ] 送信後トースト（2段階 + 「戻す」ボタン）
+- [ ] `ThreadListView.swift` + `ThreadRowView.swift`
+  - [ ] 検索バー
+  - [ ] 🔒ロックアイコン・スピナー・長押し展開
+  - [ ] 左スワイプ削除・一括削除
+  - [ ] 未分類メモ N件バナー
+- [ ] `ThreadDetailView.swift`
+  - [ ] Markdownプレビューモード / 編集モード切り替え
+  - [ ] AI指示バブルアイコン → 入力欄展開
+  - [ ] `MemoHistoryView.swift`（元メモ履歴・デフォルト畳まれ）
+- [ ] `TriageSheetView.swift` + `TriageCardView.swift`
+  - [ ] 右/上/左スワイプアクション（登録/スキップ/廃棄）
 - [ ] `AppleIntelligenceErrorView.swift`（unavailable 時）
 
 ---
 
 ## Phase 6: 統合・品質
 
-- [ ] フォーカスアウト → AI 整形 → SwiftData 保存 の E2E フロー結合
+- [ ] 入力 → 送信 → AI整形 → Thread統合 の E2E フロー結合
+- [ ] 保留メモ → トリアージ → 登録 の E2E フロー結合
 - [ ] iOS 26 シミュレーターでの動作確認（AI 整形以外）
 - [ ] 実機（iPhone 15 Pro + Apple Intelligence 有効）での AI 整形テスト
-- [ ] Instruments App Launch テンプレートで起動時間計測（目標: < 200ms）
+- [ ] Instruments App Launch テンプレートで起動時間計測（目標: < 300ms）
 - [ ] コードレビュー by reviewer エージェント
