@@ -1,0 +1,20 @@
+/* BakusokuMemoApp Localizable Strings */
+
+/* 入力画面 */
+"input.placeholder" = "メモを入力…";
+"input.pending_banner" = "未分類メモ %d 件";
+
+/* エラー */
+"error.ai_unavailable.title" = "Apple Intelligence が必要です";
+"error.ai_unavailable.message" = "このアプリは Apple Intelligence に対応したデバイス（iPhone 15 Pro 以降）でのみ動作します。";
+"error.ai_unavailable.button" = "設定を開く";
+"error.context_exceeded" = "テキストが長すぎます。短くして再試行してください。";
+
+/* スレッド一覧 */
+"thread_list.title" = "スレッド";
+"thread_list.search_placeholder" = "スレッドを検索";
+
+/* トリアージ */
+"triage.title" = "トリアージ";
+"triage.hint" = "右: 登録 ／ 上: スキップ ／ 左: 廃棄";
+"triage.done" = "すべて処理しました";
