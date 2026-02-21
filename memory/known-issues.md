@@ -7,7 +7,7 @@
 ## [ISSUE-001] iOS 26 シミュレーターで Apple Intelligence が使えない
 
 - **発見日**: 2026-02-21
-- **対象ファイル**: `BakusokuMemoApp/Features/MemoFormatter.swift`（実装予定）
+- **対象ファイル**: `BakusokuMemoApp/Features/ThreadFormatter.swift`（実装予定）
 - **深刻度**: Warning（開発フローの制約）
 - **内容**: iOS 26 シミュレーターでは `SystemLanguageModel.default.availability` が `.unavailable(.deviceNotEligible)` を返す。AI 整形の動作確認がシミュレーターで行えない
 - **対処方法**:
@@ -20,7 +20,7 @@
 ## [ISSUE-002] LanguageModelSession のコンテキストウィンドウ上限
 
 - **発見日**: 2026-02-21
-- **対象ファイル**: `BakusokuMemoApp/Features/MemoFormatter.swift`（実装予定）
+- **対象ファイル**: `BakusokuMemoApp/Features/ThreadFormatter.swift`（実装予定）
 - **深刻度**: Warning
 - **内容**: `LanguageModelSession` にはコンテキストウィンドウのサイズ制限がある。非常に長いテキストを入力した場合、`GenerationError.exceededContextWindowSize` が throw される
 - **対処方法**: `catch GenerationError.exceededContextWindowSize` でユーザーに「テキストが長すぎます」を UI で通知する。テキストを分割して再試行する処理は書かない
@@ -45,5 +45,5 @@
 - **対象ファイル**: `BakusokuMemoApp/Models/` 以下全ファイル
 - **深刻度**: Warning
 - **内容**: Swift 6 strict concurrency では `@Model` クラスを `actor` 境界を越えて渡す際に `Sendable` 準拠の警告が出る場合がある。SwiftData の `PersistentModel` プロトコルは `@unchecked Sendable` に準拠しているが、設計上 `ModelContext` は `@MainActor` 内でのみ操作する
-- **対処方法**: `actor MemoFormatter` では `@Model` インスタンスを直接保持・操作しない。`Memo.id`（`UUID`）などのプリミティブ値のみを `actor` 境界を越えて渡す
+- **対処方法**: `actor ThreadFormatter` では `@Model` インスタンスを直接保持・操作しない。`Thread.id`（`UUID`）などのプリミティブ値のみを `actor` 境界を越えて渡す
 - **ステータス**: Open

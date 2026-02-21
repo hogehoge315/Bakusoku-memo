@@ -12,36 +12,50 @@ applyTo: "**/Models/**/*.swift"
 
 ```swift
 @Model
-final class Memo {
+final class Thread {
     var id: UUID
-    var rawInput: String
     var title: String
-    var memoType: String      // enum は String に変換して保存
-    var items: [MemoItem]
-    var isProcessing: Bool
+    var markdownContent: String
+    var isLocked: Bool
+    @Transient var isProcessing: Bool = false
+    var updatedAt: Date
+    @Relationship(deleteRule: .cascade) var items: [ThreadItem]
+
+    init(title: String) {
+        self.id = UUID()
+        self.title = title
+        self.markdownContent = ""
+        self.isLocked = false
+        self.updatedAt = Date()
+        self.items = []
+    }
+}
+
+@Model
+final class ThreadItem {
+    var id: UUID
+    var rawText: String
+    var itemType: String  // "memo" or "aiInstruction"
     var createdAt: Date
 
-    init(rawInput: String) {
+    init(rawText: String, itemType: String) {
         self.id = UUID()
-        self.rawInput = rawInput
-        self.title = ""
-        self.memoType = "note"
-        self.items = []
-        self.isProcessing = true
+        self.rawText = rawText
+        self.itemType = itemType
         self.createdAt = Date()
     }
 }
 
 @Model
-final class MemoItem {
-    var text: String
-    var isChecked: Bool
-    var sortOrder: Int
+final class PendingMemo {
+    var id: UUID
+    var rawText: String
+    var createdAt: Date
 
-    init(text: String, sortOrder: Int) {
-        self.text = text
-        self.isChecked = false
-        self.sortOrder = sortOrder
+    init(rawText: String) {
+        self.id = UUID()
+        self.rawText = rawText
+        self.createdAt = Date()
     }
 }
 ```
@@ -58,7 +72,7 @@ struct BakusokuMemoApp: App {
         WindowGroup {
             RootView()
         }
-        .modelContainer(for: [Memo.self, MemoItem.self])
+        .modelContainer(for: [Thread.self, ThreadItem.self, PendingMemo.self])
     }
 }
 ```
@@ -71,14 +85,14 @@ struct BakusokuMemoApp: App {
 ```swift
 // OK
 @MainActor
-func saveMemo(_ memo: Memo, context: ModelContext) {
-    context.insert(memo)
+func saveThread(_ thread: Thread, context: ModelContext) {
+    context.insert(thread)
 }
 
 // NG — actor 内から MainActor コンテキストなしで呼ぶ
 actor SomeActor {
     func save(context: ModelContext) {
-        context.insert(Memo(rawInput: "")) // ⚠️
+        context.insert(Thread(title: "")) // ⚠️
     }
 }
 ```
@@ -87,8 +101,8 @@ actor SomeActor {
 
 ```swift
 // OK: View 内で @Query
-@Query(sort: \Memo.createdAt, order: .reverse)
-private var memos: [Memo]
+@Query(sort: \Thread.updatedAt, order: .reverse)
+private var threads: [Thread]
 
 // NG: @Query をメソッドの引数に渡す
 func display(memos: [Memo]) { ... } // 直接 @Query 結果を受ける View を設計する

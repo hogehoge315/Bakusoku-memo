@@ -27,7 +27,7 @@ model: Claude Sonnet 4.6 (copilot)
 
 - [ ] `swiftui.instructions.md` を読んだ
 - [ ] 実装対象の View 名・フォルダーが `BakusokuMemoApp/Views/[List|Input|Detail|Error]/` のいずれかに属する
-- [ ] AI 処理を融合する場合、`actor MemoFormatter` がすでに実装済みか・未実装なら未実装であることをユーザーが承知している
+- [ ] AI 処理を融合する場合、`actor ThreadFormatter` がすでに実装済みか・未実装なら未実装であることをユーザーが承知している
 - [ ] 同名の View ファイルがすでに存在しない
 
 ### Step 2: ViewModel 実装

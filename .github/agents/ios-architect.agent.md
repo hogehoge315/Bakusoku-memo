@@ -36,11 +36,11 @@ BakusokuMemoApp/
 ├── Models/        # @Model final class のみ
 ├── Views/
 │   ├── List/      # メモ一覧
-│   ├── Input/     # 入力・フォーカスアウト確定
+│   ├── Input/     # 入力・送信確定
 │   ├── Detail/    # 整形済みメモ表示
 │   └── Error/     # Apple Intelligence 非対応エラー画面
-├── Features/      # actor MemoFormatter（Foundation Models 呼び出し）
-├── Generable/     # @Generable 構造体（FormattedMemo 等）
+├── Features/      # actor ThreadFormatter（Foundation Models 呼び出し）
+├── Generable/     # @Generable 構造体（ThreadSuggestion, FormattedThread 等）
 └── Resources/
 ```
 

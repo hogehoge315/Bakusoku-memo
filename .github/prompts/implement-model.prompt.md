@@ -77,7 +77,7 @@ ModelContainer への追加前に以下を確認すること。❌があれば�
 `BakusokuMemoApp/App/BakusokuMemoApp.swift` の `.modelContainer(for:)` に新しいモデルを追加する：
 
 ```swift
-.modelContainer(for: [Memo.self, MemoItem.self, [新モデル].self])
+.modelContainer(for: [Thread.self, ThreadItem.self, PendingMemo.self, [新モデル].self])
 ```
 
 ### Step 4: マイグレーション（スキーマ変更の場合）

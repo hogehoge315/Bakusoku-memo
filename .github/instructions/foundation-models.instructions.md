@@ -18,7 +18,7 @@ func format(rawText: String) async throws -> FormattedMemo {
     case .available:
         break
     case .unavailable(let reason):
-        throw MemoFormatterError.appleIntelligenceUnavailable(reason)
+        throw ThreadFormatterError.appleIntelligenceUnavailable(reason)
     }
     // 以降の処理...
 }
@@ -38,22 +38,19 @@ case .unavailable:
 import FoundationModels
 
 @Generable
-struct FormattedMemo {
-    @Guide(description: "メモの種類。買い物リストなら shopping、タスクや TODO なら todo、その他は note")
-    var memoType: MemoType
-
-    @Guide(description: "整形・分割されたアイテムの配列。入力テキストを意味のある最小単位に分割する。例: [\"髭剃り\", \"コンタクト液\", \"歯ブラシ\"]")
-    var items: [String]
-
-    @Guide(description: "メモ全体を表すタイトル（10文字以内、体言止め）")
+struct ThreadSuggestion {
+    @Guide(description: "候補スレッドのタイトル（10文字以内）")
     var title: String
+
+    @Guide(description: "候補の理由や関連性を短く説明")
+    var reason: String
 }
 
+// Markdown再生成レスポンス
 @Generable
-enum MemoType: String {
-    case shopping
-    case todo
-    case note
+struct FormattedThread {
+    @Guide(description: "既存コンテンツに新メモを統合したMarkdown全文")
+    var markdownContent: String
 }
 ```
 
@@ -64,17 +61,17 @@ enum MemoType: String {
 - `actor` 内に session を保持しない（毎回 `init` する）
 
 ```swift
-actor MemoFormatter {
-    func format(rawText: String) async throws -> FormattedMemo {
+actor ThreadFormatter {
+    func suggestThreads(rawText: String) async throws -> ThreadSuggestion {
         // ✅ リクエストごとに新規セッション
         let session = LanguageModelSession(
             instructions: Instructions(
-                "ユーザーが入力した日本語の雑然としたテキストを分析し、種類を判定して適切な形式に整形してください。"
+                "ユーザーが入力した日本語テキストに最も適したスレッド候補を返してください。"
             )
         )
         let response = try await session.respond(
             to: Prompt(rawText),
-            generating: FormattedMemo.self
+            generating: ThreadSuggestion.self
         )
         return response.content
     }
@@ -86,7 +83,7 @@ actor MemoFormatter {
 代替処理なし。ユーザーへの通知のみ行う。
 
 ```swift
-enum MemoFormatterError: Error {
+enum ThreadFormatterError: Error {
     case appleIntelligenceUnavailable(SystemLanguageModel.Availability.UnavailableReason)
     case contextWindowExceeded
     case unsupportedLanguage
@@ -94,7 +91,7 @@ enum MemoFormatterError: Error {
 
 // catch 側
 do {
-    let result = try await formatter.format(rawText: input)
+    let result = try await formatter.suggestThreads(rawText: input)
 } catch GenerationError.exceededContextWindowSize {
     // UI に「テキストが長すぎます」を表示するだけ
 } catch GenerationError.unsupportedLanguageOrLocale {

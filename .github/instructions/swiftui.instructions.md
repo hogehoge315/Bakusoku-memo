@@ -30,9 +30,9 @@ class MemoInputViewModel: ObservableObject {
 - `@Query` は View 内でのみ使い、引数として渡さない
 
 ```swift
-struct MemoListView: View {
-    @Query(sort: \Memo.createdAt, order: .reverse)
-    private var memos: [Memo]
+struct ThreadListView: View {
+    @Query(sort: \Thread.updatedAt, order: .reverse)
+    private var threads: [Thread]
 
     @Environment(\.modelContext) private var context
 }

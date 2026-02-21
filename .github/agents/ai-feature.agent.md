@@ -15,7 +15,7 @@ model: Claude Sonnet 4.6 (copilot)
 
 ## 役割
 
-`BakusokuMemoApp/Features/`・`BakusokuMemoApp/Generable/` の実装を担当する。Foundation Models フレームワークを使い、ユーザーの雑然としたテキスト入力を構造化された `@Generable` 型に変換する AI 整形機能を実装する。
+`BakusokuMemoApp/Features/`・`BakusokuMemoApp/Generable/` の実装を担当する。Foundation Models フレームワークを使い、`actor ThreadFormatter` によるスレッド候補提案・Markdown再生成・AI指示処理を `@Generable` 型（`ThreadSuggestion`, `FormattedThread`）で実装する。
 
 ## セッション開始プロトコル（必須）
 
@@ -33,7 +33,7 @@ case .available:
     // 処理を進める
 case .unavailable(let reason):
     // エラー画面を返すだけ。フォールバック処理は書かない
-    throw MemoFormatterError.appleIntelligenceUnavailable(reason)
+    throw ThreadFormatterError.appleIntelligenceUnavailable(reason)
 }
 ```
 
@@ -45,22 +45,10 @@ case .unavailable(let reason):
 
 ```swift
 @Generable
-struct FormattedMemo {
-    @Guide(description: "メモの種類。買い物リストなら shopping、タスクなら todo、それ以外は note")
-    var memoType: MemoType
-
-    @Guide(description: "整形・分割されたアイテムの配列。元のテキストを意味のある単位で分割する")
-    var items: [String]
-
-    @Guide(description: "メモ全体を表す短いタイトル（10文字以内）")
-    var title: String
-}
-
-@Generable
-enum MemoType: String {
-    case shopping
-    case todo
-    case note
+struct ThreadSuggestion {
+    @Guide(description: "[プロパティの意図を明示]")
+    var [property]: [Type]
+    // 具体的なプロパティ定義は仕様ドキュメントを参照
 }
 ```
 
@@ -71,14 +59,14 @@ enum MemoType: String {
 - `actor` 内に保持する
 
 ```swift
-actor MemoFormatter {
-    func format(rawText: String) async throws -> FormattedMemo {
+actor ThreadFormatter {
+    func suggestThreads(rawText: String) async throws -> ThreadSuggestion {
         let session = LanguageModelSession(
-            instructions: Instructions("ユーザーが入力した日本語の雑然としたテキストを分析し、適切な形式に整形してください。")
+            instructions: Instructions("[システムプロンプト]")
         )
         let response = try await session.respond(
             to: Prompt(rawText),
-            generating: FormattedMemo.self
+            generating: ThreadSuggestion.self
         )
         return response.content
     }
