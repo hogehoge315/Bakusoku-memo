@@ -1,6 +1,6 @@
 ---
 agent: Reviewer
-description: BakusokuMemoApp の規約に基づいたコードレビューを実施し、問題を memory/known-issues.md に記録する
+description: 実装コードをレビューし、docs/reviews/{name}.review.md を生成する
 tools:
   - read/readFile
   - edit/editFiles
@@ -11,6 +11,16 @@ tools:
   - search/changes
   - search/usages
 model: Claude Sonnet 4.6 (copilot)
+---
+
+## 入力
+
+`BakusokuMemoApp/**/*.swift`（実装済みコード）
+
+## 出力
+
+`docs/reviews/{name}.review.md`
+
 ---
 
 ## タスク
@@ -78,41 +88,40 @@ model: Claude Sonnet 4.6 (copilot)
 以下の形式でレビュー結果を出力する：
 
 ```
-## レビュー結果: [ファイル名 / フォルダ名]
+# {name} レビューレポート
 
-### 🔴 Critical
-- [ファイル名:行番号] [問題の説明] → [修正方法]
+> レビュー日: YYYY-MM-DD
+> 対象: [ファイル/フォルダ一覧]
+> レビュアー: reviewer エージェント
 
-### 🟡 Warning
-- [ファイル名:行番号] [問題の説明] → [修正方法]
+---
 
-### 🟢 Style
-- [ファイル名:行番号] [問題の説明] → [修正方法]
+## サマリー
 
-### ✅ 問題なし
-[問題がないカテゴリ]
+| 深刻度 | 件数 |
+|--------|------|
+| 🔴 Critical | N |
+| 🟡 Warning | N |
+| 🟢 Style | N |
+
+**判定**: ✅ マージ可 / ❌ マージ不可（Critical あり）
+
+---
+
+## 🔴 Critical
+- [ファイル名:行番号] 問題の説明 → 修正方法
+
+## 🟡 Warning
+- [ファイル名:行番号] 問題の説明 → 修正方法
+
+## 🟢 Style
+- [ファイル名:行番号] 推奨事項 → 修正方法
+
+## ✅ 問題なし
+[問題がなかったカテゴリ]
 ```
 
 ### Step 5: memory/known-issues.md に記録
 
-🔴 Critical の問題が見つかった場合は `memory/known-issues.md` に以下の形式で追記する：
-
-```markdown
-## [ISSUE-XXX] [タイトル]
-
-- **発見日**: YYYY-MM-DD
-- **対象ファイル**: `BakusokuMemoApp/...`
-- **深刻度**: Critical
-- **内容**: [問題の詳細]
-- **対処方法**: [修正方法]
-- **ステータス**: Open
-```
-
-既存の内容は削除しない。
-
-### ✅ バリデーションゲート 3: 記録完了確認
-
-- [ ] Critical 問題があれば `memory/known-issues.md` に追記した
-- [ ] 追記した内容が既存の ISSUE と重複していない
-- [ ] ISSUE番号が連番で正しい（最大番号 + 1）
-- [ ] Critical 問題がなかった場合、その旨をユーザーに報告した
+🔴 Critical の問題が見つかった場合は `memory/known-issues.md` に追記する。  
+次は `update-context.prompt.md` で memory 全体を更新する。

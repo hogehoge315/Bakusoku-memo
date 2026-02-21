@@ -1,85 +1,119 @@
 ---
 agent: Orchestrator
-description: 実装するフィーチャーを計画し、タスクを分解して memory/progress.md に記録する
+description: spec.md を入力として受け取り、実装計画 plan.md を生成する
 tools:
   - read/readFile
-  - edit/editFiles
+  - edit/createFile
   - search/codebase
   - search/fileSearch
 model: Claude Sonnet 4.6 (copilot)
 ---
 
+## 入力
+
+`docs/specs/{name}.spec.md`（specify.prompt.md で生成済みのもの）
+
+## 出力
+
+`docs/plans/{name}.plan.md`
+
+---
+
 ## タスク
 
-以下の手順でフィーチャーの実装計画を作成してください。
+spec.md を読み、実装タスクに分解した plan.md を生成してください。
 
 ### Step 1: コンテキスト収集
 
-1. `memory/project-context.md` を読む
-2. `memory/decisions.md` を読む（既存ADRとの整合性確認）
-3. `memory/progress.md` を読む（現在のフェーズ・未完了タスクを確認）
-4. `memory/known-issues.md` を読む（影響する既知問題がないか確認）
+1. ユーザーが指定した `docs/specs/{name}.spec.md` を読む
+2. `memory/project-context.md` を読む
+3. `memory/decisions.md` を読む（既存ADRとの整合性確認）
+4. `memory/progress.md` を読む（フェーズ・未完了タスクを確認）
+5. `memory/known-issues.md` を読む
 
-### ✅ バリデーションゲート 1: コンテキスト確認
+### ✅ バリデーションゲート 1
 
-次のステップに進む前に以下をすべて確認すること。ひとつでも❌ならユーザーに報告して中止する。
+- [ ] spec.md のステータスが確定済みであることをユーザーが確認済み
+- [ ] spec.md の要件が ADR-003（フォールバック不採用）と矛盾しない
+- [ ] 同内容のタスクが `memory/progress.md` に未着手で存在しない
+- [ ] Critical な known-issue がこのフィーチャーをブロックしていない
 
-- [ ] `memory/project-context.md` を読んだ
-- [ ] 計画するフィーチャーが「Apple Intelligence 必須」の方針（ADR-003）と矛盾しない
-- [ ] 同じフィーチャーが `memory/progress.md` に未着手タスクとしてすでに存在しない
-- [ ] `memory/known-issues.md` にこのフィーチャーをブロックする未解決 Critical Issue がない
+### Step 2: plan.md 生成
 
-### Step 2: 計画立案
+`docs/plans/{name}.plan.md` を以下のテンプレートで作成する。
 
-ユーザーが指定したフィーチャーについて以下を作成してください：
+```markdown
+# {フィーチャー名} 実装計画
 
+> 生成日: YYYY-MM-DD
+> 入力Spec: docs/specs/{name}.spec.md
+> ステータス: Draft
+
+---
+
+## 1. 概要
+
+[spec の概要を1文で再掲]
+
+---
+
+## 2. 影響ファイル
+
+### 新規作成
+
+- `BakusokuMemoApp/Models/{Name}.swift` — [役割]
+- `BakusokuMemoApp/Views/{Dir}/{Name}View.swift` — [役割]
+
+### 変更
+
+- `BakusokuMemoApp/App/BakusokuMemoApp.swift` — [変更内容]
+
+---
+
+## 3. タスク一覧
+
+| #   | タスク     | 担当エージェント | 依存 | 完了条件                          |
+| --- | ---------- | ---------------- | ---- | --------------------------------- |
+| 1   | [タスク名] | ios-engineer     | なし | [ファイルが存在する等]            |
+| 2   | [タスク名] | ui-designer      | #1   | [ビルドが通る等]                  |
+| 3   | [タスク名] | ai-feature       | #1   | [@Generable 型が定義されている等] |
+
+---
+
+## 4. 実装順序
+
+#1 → #2 → #3（直列）  
+#2, #3 は並行可
+
+---
+
+## 5. 注意事項
+
+- [Swift 6 / Apple Intelligence に関する制約]
+- [既知の issues で注意が必要なもの]
+
+---
+
+## 6. 関連ADR
+
+- ADR-XXX: [関連する設計決定]
 ```
-## フィーチャー: [フィーチャー名]
 
-### 概要
-[1〜2文で何を実装するか]
-
-### 影響ファイル
-- 新規作成: BakusokuMemoApp/[パス]
-- 変更: BakusokuMemoApp/[パス]
-
-### タスク分解
-1. [ ] [タスク1] → 担当: [エージェント名]
-2. [ ] [タスク2] → 担当: [エージェント名]
-...
-
-### 完了条件
-- [ ] [検証可能な完了条件1]
-- [ ] [検証可能な完了条件2]
-
-### 関連ADR
-- ADR-XXX: [関連する既存の設計決定]
-
-### 注意事項
-- [Apple Intelligence・Swift 6 に関する制約や注意点]
-```
-
-### ✅ バリデーションゲート 2: 計画内容チェック
-
-`memory/progress.md` への追記前に以下を確認すること。ひとつでも❌ならユーザーに確認を求める。
+### ✅ バリデーションゲート 2: plan.md チェック
 
 - [ ] タスク一覧にフォールバック実装・代替ロジックのタスクが含まれていない
-- [ ] 完了条件がすべて「ファイルが存在する」「ビルドが通る」などの検証可能な形式になっている
-- [ ] 各タスクに担当エージェント名が明記されている
-- [ ] 関連ADRが正しく参照されている（存在しないADR番号を参照していない）
+- [ ] 全タスクに担当エージェント名が明記されている
+- [ ] 完了条件がすべて検証可能な形式
+- [ ] 実装順序が依存関係と整合している
+- [ ] 参照ADR番号が実在する
 
-### Step 3: memory/progress.md に追記
+### Step 3: 完了報告
 
-計画したタスクを `memory/progress.md` の適切なフェーズに `[ ]` 形式で追記する。
-既存の項目は削除・変更しない。
-
-### ✅ バリデーションゲート 3: 追記後の整合性確認
-
-- [ ] `memory/progress.md` の既存チェック済み項目（`[x]`）が変更・削除されていない
-- [ ] 新規追加タスクが既存タスクと重複していない
-- [ ] フェーズの順序が論理的に正しい（依存関係が崩れていない）
+生成した `docs/plans/{name}.plan.md` のパスをユーザーに報告する。  
+次は `implement.prompt.md` を使ってタスク #1 から実装を開始する。
 
 ### 禁止事項
 
 - フォールバック実装のタスクを計画しない
 - Apple Intelligence 非対応環境向けの代替フローを計画しない
+- `memory/progress.md` を直接編集しない（update-context.prompt.md の役割）

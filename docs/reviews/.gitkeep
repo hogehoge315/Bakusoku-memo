@@ -1,0 +1,4 @@
+# reviews
+
+review.prompt.md の出力先。
+`{name}.review.md` 形式で保存する。

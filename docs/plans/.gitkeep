@@ -1,0 +1,4 @@
+# plans
+
+plan.prompt.md の出力先。
+`{name}.plan.md` 形式で保存する。

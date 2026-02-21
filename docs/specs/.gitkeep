@@ -1,0 +1,4 @@
+# specs
+
+specify.prompt.md の出力先。
+`{name}.spec.md` 形式で保存する。
