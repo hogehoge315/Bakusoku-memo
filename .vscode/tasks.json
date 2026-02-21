@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // --- SweetPad タスク（メイン）---
+    {
+      "label": "sweetpad: Build",
+      "type": "sweetpad",
+      "action": "build",
+      "scheme": "BakusokuMemoApp",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "sweetpad: Launch",
+      "type": "sweetpad",
+      "action": "launch",
+      "scheme": "BakusokuMemoApp",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "sweetpad: Clean",
+      "type": "sweetpad",
+      "action": "clean",
+      "scheme": "BakusokuMemoApp",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+
+    // --- セットアップタスク（初回のみ）---
+    {
+      "label": "setup: Generate Xcode Project (XcodeGen)",
+      "type": "shell",
+      "command": "xcodegen generate",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "setup: Configure Build Server (LSP)",
+      "type": "shell",
+      "command": "xcode-build-server config -scheme BakusokuMemoApp -project BakusokuMemoApp.xcodeproj",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": [],
+      "dependsOn": "setup: Generate Xcode Project (XcodeGen)"
+    }
+  ]
+}

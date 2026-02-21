@@ -1,0 +1,56 @@
+name: BakusokuMemoApp
+options:
+  bundleIdPrefix: com.hogehoge315
+  deploymentTarget:
+    iOS: "26.0"
+  xcodeVersion: "16.4"
+  swiftVersion: "6.0"
+  createIntermediateGroups: true
+  usesTabs: false
+  indentWidth: 4
+  tabWidth: 4
+
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: "" # ← 実機ビルド時に Team ID を設定
+
+targets:
+  BakusokuMemoApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: BakusokuMemoApp
+    info:
+      path: BakusokuMemoApp/Info.plist
+      properties:
+        CFBundleDisplayName: BakusokuMemoApp
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hogehoge315.BakusokuMemoApp
+        INFOPLIST_FILE: BakusokuMemoApp/Info.plist
+    dependencies:
+      - sdk: FoundationModels.framework
+      - sdk: SwiftData.framework
+    scheme:
+      testTargets:
+        - BakusokuMemoAppTests
+
+  BakusokuMemoAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: BakusokuMemoAppTests
+    dependencies:
+      - target: BakusokuMemoApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hogehoge315.BakusokuMemoAppTests

@@ -1,0 +1,26 @@
+{
+    "sourcekit-lsp.serverPath": "/usr/bin/sourcekit-lsp",
+  "swift.buildArguments": ["-strict-concurrency=complete"],
+
+  // --- エディター ---
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.formatOnSave": true,
+  "[swift]": {
+    "editor.defaultFormatter": "sswg.swift-lang"
+  },
+
+  // --- ファイル除外（Xcodeノイズ削減）---
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/xcuserdata": true,
+    "**/*.xcuserstate": true,
+    "**/.build": true,
+    "**/DerivedData": true
+  },
+  "search.exclude": {
+    "**/DerivedData": true,
+    "**/.build": true,
+    "**/xcuserdata": true
+  }
+}

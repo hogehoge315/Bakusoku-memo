@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    // Swift言語サポート（LSP・補完・デバッグ）
+    "sswg.swift-lang",
+    // Markdownプレビュー強化
+    "yzhang.markdown-all-in-one",
+    // Git差分可視化
+    "eamodio.gitlens"
+  ]
+}

@@ -1,0 +1,37 @@
+# === Xcode ===
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+# XcodeGen が生成するファイル（.xcodeproj は生成物なのでcommit対象か選択可）
+# ここでは commit する方針にする（CI/CD でも使えるように）
+
+# === Swift Package Manager ===
+.build/
+.swiftpm/
+*.resolved
+
+# === macOS ===
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# === VS Code ===
+# settings.json と tasks.json は共有するのでignoreしない
+.vscode/launch.json
+
+# xcode-build-server の生成ファイル（ローカル固有）
+buildServer.json
+
+# === fastlane ===
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
